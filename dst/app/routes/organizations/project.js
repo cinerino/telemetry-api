@@ -57,6 +57,7 @@ validator_1.default, (req, res, next) => __awaiter(this, void 0, void 0, functio
     try {
         const telemetryRepo = new cinerino.repository.Telemetry(cinerino.mongoose.connection);
         const datas = yield cinerino.service.telemetry.search({
+            projectId: req.params.projectId,
             telemetryType: req.params.telemetryType,
             measureFrom: moment(req.query.measureFrom).toDate(),
             measureThrough: moment(req.query.measureThrough).toDate(),

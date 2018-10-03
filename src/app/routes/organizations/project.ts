@@ -57,6 +57,7 @@ projectRouter.get(
         try {
             const telemetryRepo = new cinerino.repository.Telemetry(cinerino.mongoose.connection);
             const datas = await cinerino.service.telemetry.search({
+                projectId: req.params.projectId,
                 telemetryType: req.params.telemetryType,
                 measureFrom: moment(req.query.measureFrom).toDate(),
                 measureThrough: moment(req.query.measureThrough).toDate(),
