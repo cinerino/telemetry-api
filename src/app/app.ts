@@ -6,19 +6,16 @@ import * as cinerino from '@cinerino/telemetry-domain';
 import * as middlewares from '@motionpicture/express-middleware';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
-import * as createDebug from 'debug';
 import * as express from 'express';
 import * as expressValidator from 'express-validator';
 import * as helmet from 'helmet';
 import * as qs from 'qs';
 
-import mongooseConnectionOptions from '../mongooseConnectionOptions';
+import { connectMongo } from '../connectMongo';
 
 import errorHandler from './middlewares/errorHandler';
 import notFoundHandler from './middlewares/notFoundHandler';
 import router from './routes/router';
-
-const debug = createDebug('cinerino-telemetry-api:app');
 
 const app = express();
 app.set('query parser', (str: any) => qs.parse(str, {
@@ -83,9 +80,11 @@ app.use(expressValidator({})); // this line must be immediately after any of the
 // 静的ファイル
 // app.use(express.static(__dirname + '/../../public'));
 
-cinerino.mongoose.connect(<string>process.env.MONGOLAB_URI, mongooseConnectionOptions)
-    .then(() => { debug('MongoDB connected.'); })
-    .catch(console.error);
+connectMongo({ defaultConnection: true }).then().catch((err) => {
+    // tslint:disable-next-line:no-console
+    console.error('connetMongo:', err);
+    process.exit(1);
+});
 
 // routers
 app.use('/', router);
