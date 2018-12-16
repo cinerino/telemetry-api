@@ -2,10 +2,11 @@
  * プロジェクトルーター
  */
 import * as cinerino from '@cinerino/telemetry-domain';
+import * as GMO from '@motionpicture/gmo-service';
 import { Router } from 'express';
 // tslint:disable-next-line:no-submodule-imports
 import { body } from 'express-validator/check';
-import { CREATED } from 'http-status';
+import { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR, OK } from 'http-status';
 import * as moment from 'moment';
 
 import authentication from '../../middlewares/authentication';
@@ -13,6 +14,7 @@ import validator from '../../middlewares/validator';
 
 const projectRouter = Router();
 projectRouter.use(authentication);
+
 /**
  * タスク追加
  */
@@ -36,7 +38,7 @@ projectRouter.post(
                 executionResults: [],
                 data: {
                     ...req.body.data,
-                    projectId: req.params.projectId
+                    project: { id: req.params.projectId }
                 }
             };
             const task = await taskRepo.save(attributes);
@@ -46,6 +48,7 @@ projectRouter.post(
         }
     }
 );
+
 /**
  * テレメトリー検索
  */
@@ -69,4 +72,81 @@ projectRouter.get(
         }
     }
 );
+
+/**
+ * 受信OK
+ */
+const RECV_RES_OK = '0';
+/**
+ * 受信失敗
+ */
+const RECV_RES_NG = '1';
+
+projectRouter.post('/:projectId/gmo/notify', async (req, res) => {
+    if (req.body.OrderID === undefined) {
+        res.send(RECV_RES_OK);
+
+        return;
+    }
+
+    // リクエストボディから分析タスク生成
+    try {
+        const notification = GMO.factory.resultNotification.creditCard.createFromRequestBody(req.body);
+        const taskRepo = new cinerino.repository.Task(cinerino.mongoose.connection);
+        const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
+            name: <any>'analyzeGMONotification',
+            status: cinerino.factory.taskStatus.Ready,
+            runsAt: new Date(),
+            remainingNumberOfTries: 3,
+            lastTriedAt: null,
+            numberOfTried: 0,
+            executionResults: [],
+            data: {
+                notification: notification,
+                project: { id: req.params.projectId }
+            }
+        };
+        await taskRepo.save(attributes);
+        res.send(RECV_RES_OK);
+    } catch (error) {
+        res.send(RECV_RES_NG);
+    }
+});
+
+projectRouter.post('/:projectId/sendGrid/event/notify', async (req, res) => {
+    const events = req.body;
+
+    if (!Array.isArray(events)) {
+        res.status(BAD_REQUEST).end();
+
+        return;
+    }
+
+    // リクエストボディから分析タスク生成
+    try {
+        const taskRepo = new cinerino.repository.Task(cinerino.mongoose.connection);
+
+        await Promise.all(events.map(async (event) => {
+            const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
+                name: <any>'analyzeSendGridEvent',
+                status: cinerino.factory.taskStatus.Ready,
+                runsAt: new Date(),
+                remainingNumberOfTries: 3,
+                lastTriedAt: null,
+                numberOfTried: 0,
+                executionResults: [],
+                data: {
+                    event: event,
+                    project: { id: req.params.projectId }
+                }
+            };
+            await taskRepo.save(attributes);
+        }));
+
+        res.status(OK).end();
+    } catch (error) {
+        res.status(INTERNAL_SERVER_ERROR).end();
+    }
+});
+
 export default projectRouter;
