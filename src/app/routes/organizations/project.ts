@@ -6,7 +6,7 @@ import * as GMO from '@motionpicture/gmo-service';
 import { Router } from 'express';
 // tslint:disable-next-line:no-submodule-imports
 import { body } from 'express-validator/check';
-import { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR, OK } from 'http-status';
+import { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK } from 'http-status';
 import * as moment from 'moment';
 
 import authentication from '../../middlewares/authentication';
@@ -33,7 +33,6 @@ projectRouter.post(
                 status: cinerino.factory.taskStatus.Ready,
                 runsAt: new Date(),
                 remainingNumberOfTries: 3,
-                lastTriedAt: null,
                 numberOfTried: 0,
                 executionResults: [],
                 data: {
@@ -98,10 +97,9 @@ projectRouter.post('/:projectId/gmo/notify', async (req, res) => {
             status: cinerino.factory.taskStatus.Ready,
             runsAt: new Date(),
             remainingNumberOfTries: 3,
-            lastTriedAt: null,
             numberOfTried: 0,
             executionResults: [],
-            data: {
+            data: <any>{
                 notification: notification,
                 project: { id: req.params.projectId }
             }
@@ -132,10 +130,9 @@ projectRouter.post('/:projectId/sendGrid/event/notify', async (req, res) => {
                 status: cinerino.factory.taskStatus.Ready,
                 runsAt: new Date(),
                 remainingNumberOfTries: 3,
-                lastTriedAt: null,
                 numberOfTried: 0,
                 executionResults: [],
-                data: {
+                data: <any>{
                     event: event,
                     project: { id: req.params.projectId }
                 }
@@ -144,6 +141,31 @@ projectRouter.post('/:projectId/sendGrid/event/notify', async (req, res) => {
         }));
 
         res.status(OK).end();
+    } catch (error) {
+        res.status(INTERNAL_SERVER_ERROR).end();
+    }
+});
+
+/**
+ * 汎用的なLINE連携
+ */
+projectRouter.post('/:projectId/lineNotify', async (req, res) => {
+    const data = req.body.data;
+
+    try {
+        const message = `project:${req.params.projectId}
+data: ${typeof data.typeOf}
+typeOf: ${(data !== undefined) ? data.typeOf : ''}
+id: ${(data !== undefined) ? data.id : ''}
+orderNumber: ${(data !== undefined) ? data.orderNumber : ''}
+reservationNumber: ${(data !== undefined) ? data.reservationNumber : ''}
+orderStatus: ${(data !== undefined) ? data.orderStatus : ''}
+reservationStatus: ${(data !== undefined) ? data.reservationStatus : ''}
+`;
+
+        await cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
+
+        res.status(NO_CONTENT).end();
     } catch (error) {
         res.status(INTERNAL_SERVER_ERROR).end();
     }
