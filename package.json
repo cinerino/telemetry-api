@@ -9,7 +9,7 @@
     }
   ],
   "dependencies": {
-    "@cinerino/telemetry-domain": "1.0.0-alpha.5",
+    "@cinerino/telemetry-domain": "1.0.0-alpha.7",
     "@motionpicture/express-middleware": "^0.1.1",
     "@motionpicture/gmo-service": "^4.3.0",
     "body-parser": "^1.18.3",
@@ -43,7 +43,6 @@
     "@types/sinon": "^4.3.3",
     "@types/supertest": "^2.0.7",
     "@types/winston": "^2.4.4",
-    "aglio": "^2.3.0",
     "clear-require": "^2.0.0",
     "cpx": "^1.5.0",
     "glob": "^7.1.3",
@@ -57,13 +56,11 @@
     "request-promise-native": "^1.0.7",
     "rimraf": "^2.6.3",
     "sinon": "^5.1.1",
-    "snyk": "^1.145.0",
     "supertest": "^3.4.2",
-    "swagger2blueprint": "^1.1.0",
     "ts-node": "^6.2.0",
     "tslint": "^5.15.0",
     "tslint-microsoft-contrib": "^5.2.1",
-    "typescript": "^3.6.2"
+    "typescript": "3.5.3"
   },
   "engines": {
     "node": ">=8.0.0",
@@ -82,13 +79,9 @@
     "check": "npm run tslint",
     "clean": "rimraf ./dst ./docs ./coverage \"npm-debug.log*\" ./.nyc_output",
     "doc": "echo \"No docs.\" && exit 0",
-    "swagger": "cpx ./swagger.yaml docs && npm run swagger2blueprint && npm run blueprint2doc",
-    "swagger2blueprint": "swagger2blueprint ./docs/swagger.yaml ./docs/index.apib",
-    "blueprint2doc": "aglio --theme-variables streak --theme-condense-nav true --theme-full-width true --theme-template triple --theme-style default -i ./docs/index.apib -o ./docs/index.html",
     "http-server": "http-server",
     "mocha": "mocha",
     "coverage": "nyc mocha \"src/**/*.spec.ts\"",
-    "snyk": "snyk wizard",
     "start": "node dst/server.js",
     "start:development": "node dst/ssl.js",
     "test": "npm run check && npm run coverage",
