@@ -8,6 +8,7 @@ import { Router } from 'express';
 import { body } from 'express-validator/check';
 import { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK } from 'http-status';
 import * as moment from 'moment';
+import * as util from 'util';
 
 import authentication from '../../middlewares/authentication';
 import validator from '../../middlewares/validator';
@@ -154,13 +155,9 @@ projectRouter.post('/:projectId/lineNotify', async (req, res) => {
 
     try {
         const message = `project:${req.params.projectId}
-data: ${typeof data.typeOf}
+${util.inspect(data, { depth: 1 })}
+data: ${typeof data}
 typeOf: ${(data !== undefined) ? data.typeOf : ''}
-id: ${(data !== undefined) ? data.id : ''}
-orderNumber: ${(data !== undefined) ? data.orderNumber : ''}
-reservationNumber: ${(data !== undefined) ? data.reservationNumber : ''}
-orderStatus: ${(data !== undefined) ? data.orderStatus : ''}
-reservationStatus: ${(data !== undefined) ? data.reservationStatus : ''}
 `;
 
         await cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();

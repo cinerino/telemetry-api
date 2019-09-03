@@ -18,6 +18,7 @@ const express_1 = require("express");
 const check_1 = require("express-validator/check");
 const http_status_1 = require("http-status");
 const moment = require("moment");
+const util = require("util");
 const authentication_1 = require("../../middlewares/authentication");
 const validator_1 = require("../../middlewares/validator");
 const projectRouter = express_1.Router();
@@ -142,13 +143,9 @@ projectRouter.post('/:projectId/lineNotify', (req, res) => __awaiter(this, void 
     const data = req.body.data;
     try {
         const message = `project:${req.params.projectId}
-data: ${typeof data.typeOf}
+${util.inspect(data, { depth: 1 })}
+data: ${typeof data}
 typeOf: ${(data !== undefined) ? data.typeOf : ''}
-id: ${(data !== undefined) ? data.id : ''}
-orderNumber: ${(data !== undefined) ? data.orderNumber : ''}
-reservationNumber: ${(data !== undefined) ? data.reservationNumber : ''}
-orderStatus: ${(data !== undefined) ? data.orderStatus : ''}
-reservationStatus: ${(data !== undefined) ? data.reservationStatus : ''}
 `;
         yield cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
         res.status(http_status_1.NO_CONTENT).end();
