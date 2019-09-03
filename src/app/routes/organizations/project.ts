@@ -154,10 +154,8 @@ projectRouter.post('/:projectId/lineNotify', async (req, res) => {
     const data = req.body.data;
 
     try {
-        const message = `project:${req.params.projectId}
-${util.inspect(data, { depth: 1 })}
-data: ${typeof data}
-typeOf: ${(data !== undefined) ? data.typeOf : ''}
+        const message = `Project: ${req.params.projectId}
+${util.inspect(data, { depth: 0 })}
 `;
 
         await cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();

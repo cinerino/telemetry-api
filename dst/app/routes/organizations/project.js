@@ -142,10 +142,8 @@ projectRouter.post('/:projectId/sendGrid/event/notify', (req, res) => __awaiter(
 projectRouter.post('/:projectId/lineNotify', (req, res) => __awaiter(this, void 0, void 0, function* () {
     const data = req.body.data;
     try {
-        const message = `project:${req.params.projectId}
-${util.inspect(data, { depth: 1 })}
-data: ${typeof data}
-typeOf: ${(data !== undefined) ? data.typeOf : ''}
+        const message = `Project: ${req.params.projectId}
+${util.inspect(data, { depth: 0 })}
 `;
         yield cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
         res.status(http_status_1.NO_CONTENT).end();
