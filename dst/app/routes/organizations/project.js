@@ -40,7 +40,12 @@ projectRouter.post('/:projectId/tasks/:name',
             remainingNumberOfTries: 3,
             numberOfTried: 0,
             executionResults: [],
-            data: Object.assign({}, req.body.data, { project: { id: req.params.projectId } })
+            data: Object.assign({}, req.body.data, { transaction: (req.body.data !== undefined
+                    && req.body.data !== null
+                    && req.body.data.transaction !== undefined
+                    && req.body.data.transaction !== null)
+                    ? req.body.data.transaction
+                    : req.body.data, project: { id: req.params.projectId } })
         };
         const task = yield taskRepo.save(attributes);
         res.status(http_status_1.CREATED).json(task);

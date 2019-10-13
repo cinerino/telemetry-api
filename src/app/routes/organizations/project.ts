@@ -38,6 +38,12 @@ projectRouter.post(
                 executionResults: [],
                 data: {
                     ...req.body.data,
+                    transaction: (req.body.data !== undefined
+                        && req.body.data !== null
+                        && req.body.data.transaction !== undefined
+                        && req.body.data.transaction !== null)
+                        ? req.body.data.transaction
+                        : req.body.data,
                     project: { id: req.params.projectId }
                 }
             };
