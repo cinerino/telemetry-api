@@ -29,23 +29,22 @@ projectRouter.use(authentication_1.default);
 projectRouter.post('/:projectId/tasks/:name', 
 // permitScopes(['admin']),
 ...[
-    check_1.body('data').not().isEmpty().withMessage((_, options) => `${options.path} is required`)
+    check_1.body('data')
+        .not()
+        .isEmpty()
+        .withMessage(() => 'required')
 ], validator_1.default, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     try {
         const taskRepo = new cinerino.repository.Task(cinerino.mongoose.connection);
         const attributes = {
             name: req.params.name,
+            project: { typeOf: 'Project', id: req.params.projectId },
             status: cinerino.factory.taskStatus.Ready,
             runsAt: new Date(),
             remainingNumberOfTries: 3,
             numberOfTried: 0,
             executionResults: [],
-            data: Object.assign({}, req.body.data, { transaction: (req.body.data !== undefined
-                    && req.body.data !== null
-                    && req.body.data.transaction !== undefined
-                    && req.body.data.transaction !== null)
-                    ? req.body.data.transaction
-                    : req.body.data, project: { id: req.params.projectId } })
+            data: req.body.data
         };
         const task = yield taskRepo.save(attributes);
         res.status(http_status_1.CREATED).json(task);
@@ -57,9 +56,7 @@ projectRouter.post('/:projectId/tasks/:name',
 /**
  * 取引ウェブフック受信
  */
-projectRouter.post('/:projectId/webhooks/onPlaceOrderEnded', 
-// permitScopes(['admin']),
-...[
+projectRouter.post('/:projectId/webhooks/onPlaceOrderEnded', ...[
     check_1.body('data')
         .not()
         .isEmpty()
@@ -69,17 +66,13 @@ projectRouter.post('/:projectId/webhooks/onPlaceOrderEnded',
         const taskRepo = new cinerino.repository.Task(cinerino.mongoose.connection);
         const attributes = {
             name: 'analyzePlaceOrder',
+            project: { typeOf: 'Project', id: req.params.projectId },
             status: cinerino.factory.taskStatus.Ready,
             runsAt: new Date(),
             remainingNumberOfTries: 3,
             numberOfTried: 0,
             executionResults: [],
-            data: Object.assign({}, req.body.data, { transaction: (req.body.data !== undefined
-                    && req.body.data !== null
-                    && req.body.data.transaction !== undefined
-                    && req.body.data.transaction !== null)
-                    ? req.body.data.transaction
-                    : req.body.data, project: { id: req.params.projectId } })
+            data: req.body.data
         };
         yield taskRepo.save(attributes);
         res.status(http_status_1.NO_CONTENT)
@@ -129,6 +122,7 @@ projectRouter.post('/:projectId/gmo/notify', (req, res) => __awaiter(this, void 
         const taskRepo = new cinerino.repository.Task(cinerino.mongoose.connection);
         const attributes = {
             name: 'analyzeGMONotification',
+            project: { typeOf: 'Project', id: req.params.projectId },
             status: cinerino.factory.taskStatus.Ready,
             runsAt: new Date(),
             remainingNumberOfTries: 3,
@@ -158,6 +152,7 @@ projectRouter.post('/:projectId/sendGrid/event/notify', (req, res) => __awaiter(
         yield Promise.all(events.map((event) => __awaiter(this, void 0, void 0, function* () {
             const attributes = {
                 name: 'analyzeSendGridEvent',
+                project: { typeOf: 'Project', id: req.params.projectId },
                 status: cinerino.factory.taskStatus.Ready,
                 runsAt: new Date(),
                 remainingNumberOfTries: 3,
