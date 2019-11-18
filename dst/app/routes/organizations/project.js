@@ -55,6 +55,40 @@ projectRouter.post('/:projectId/tasks/:name',
     }
 }));
 /**
+ * 取引ウェブフック受信
+ */
+projectRouter.post('/:projectId/webhooks/onPlaceOrderEnded', 
+// permitScopes(['admin']),
+...[
+    check_1.body('data')
+        .not()
+        .isEmpty()
+        .withMessage(() => 'required')
+], validator_1.default, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    try {
+        const taskRepo = new cinerino.repository.Task(cinerino.mongoose.connection);
+        const attributes = {
+            name: 'analyzePlaceOrder',
+            status: cinerino.factory.taskStatus.Ready,
+            runsAt: new Date(),
+            remainingNumberOfTries: 3,
+            numberOfTried: 0,
+            executionResults: [],
+            data: Object.assign({}, req.body.data, { transaction: (req.body.data !== undefined
+                    && req.body.data !== null
+                    && req.body.data.transaction !== undefined
+                    && req.body.data.transaction !== null)
+                    ? req.body.data.transaction
+                    : req.body.data, project: { id: req.params.projectId } })
+        };
+        yield taskRepo.save(attributes);
+        res.status(http_status_1.NO_CONTENT);
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+/**
  * テレメトリー検索
  */
 projectRouter.get('/:projectId/telemetry/:telemetryType', 
