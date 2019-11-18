@@ -82,7 +82,8 @@ projectRouter.post('/:projectId/webhooks/onPlaceOrderEnded',
                     : req.body.data, project: { id: req.params.projectId } })
         };
         yield taskRepo.save(attributes);
-        res.status(http_status_1.NO_CONTENT);
+        res.status(http_status_1.NO_CONTENT)
+            .end();
     }
     catch (error) {
         next(error);

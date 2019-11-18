@@ -91,7 +91,8 @@ projectRouter.post(
             };
             await taskRepo.save(attributes);
 
-            res.status(NO_CONTENT);
+            res.status(NO_CONTENT)
+                .end();
         } catch (error) {
             next(error);
         }
