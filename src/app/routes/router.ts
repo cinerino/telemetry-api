@@ -5,6 +5,7 @@ import * as express from 'express';
 
 import healthRouter from './health';
 import organizationsRouter from './organizations';
+import webhooksRouter from './webhooks';
 
 const router = express.Router();
 
@@ -16,4 +17,6 @@ const router = express.Router();
 
 router.use('/health', healthRouter);
 router.use('/organizations', organizationsRouter);
+router.use('/webhooks', webhooksRouter);
+
 export default router;

@@ -8,6 +8,7 @@ import { Router } from 'express';
 import { body } from 'express-validator/check';
 import { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK } from 'http-status';
 import * as moment from 'moment';
+import * as mongoose from 'mongoose';
 import * as util from 'util';
 
 import authentication from '../../middlewares/authentication';
@@ -31,10 +32,10 @@ projectRouter.post(
     validator,
     async (req, res, next) => {
         try {
-            const taskRepo = new cinerino.repository.Task(cinerino.mongoose.connection);
+            const taskRepo = new cinerino.repository.Task(mongoose.connection);
             const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
                 name: req.params.name,
-                project: { typeOf: 'Project', id: req.params.projectId },
+                project: { typeOf: cinerino.factory.organizationType.Project, id: req.params.projectId },
                 status: cinerino.factory.taskStatus.Ready,
                 runsAt: new Date(),
                 remainingNumberOfTries: 3,
@@ -64,10 +65,10 @@ projectRouter.post(
     validator,
     async (req, res, next) => {
         try {
-            const taskRepo = new cinerino.repository.Task(cinerino.mongoose.connection);
+            const taskRepo = new cinerino.repository.Task(mongoose.connection);
             const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
                 name: <any>'analyzePlaceOrder',
-                project: { typeOf: 'Project', id: req.params.projectId },
+                project: { typeOf: cinerino.factory.organizationType.Project, id: req.params.projectId },
                 status: cinerino.factory.taskStatus.Ready,
                 runsAt: new Date(),
                 remainingNumberOfTries: 3,
@@ -94,7 +95,7 @@ projectRouter.get(
     validator,
     async (req, res, next) => {
         try {
-            const telemetryRepo = new cinerino.repository.Telemetry(cinerino.mongoose.connection);
+            const telemetryRepo = new cinerino.repository.Telemetry(mongoose.connection);
             const datas = await cinerino.service.telemetry.search({
                 projectId: req.params.projectId,
                 telemetryType: req.params.telemetryType,
@@ -128,10 +129,10 @@ projectRouter.post('/:projectId/gmo/notify', async (req, res) => {
     // リクエストボディから分析タスク生成
     try {
         const notification = GMO.factory.resultNotification.creditCard.createFromRequestBody(req.body);
-        const taskRepo = new cinerino.repository.Task(cinerino.mongoose.connection);
+        const taskRepo = new cinerino.repository.Task(mongoose.connection);
         const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
             name: <any>'analyzeGMONotification',
-            project: { typeOf: 'Project', id: req.params.projectId },
+            project: { typeOf: cinerino.factory.organizationType.Project, id: req.params.projectId },
             status: cinerino.factory.taskStatus.Ready,
             runsAt: new Date(),
             remainingNumberOfTries: 3,
@@ -160,12 +161,12 @@ projectRouter.post('/:projectId/sendGrid/event/notify', async (req, res) => {
 
     // リクエストボディから分析タスク生成
     try {
-        const taskRepo = new cinerino.repository.Task(cinerino.mongoose.connection);
+        const taskRepo = new cinerino.repository.Task(mongoose.connection);
 
         await Promise.all(events.map(async (event) => {
             const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
                 name: <any>'analyzeSendGridEvent',
-                project: { typeOf: 'Project', id: req.params.projectId },
+                project: { typeOf: cinerino.factory.organizationType.Project, id: req.params.projectId },
                 status: cinerino.factory.taskStatus.Ready,
                 runsAt: new Date(),
                 remainingNumberOfTries: 3,

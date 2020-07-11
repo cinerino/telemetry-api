@@ -12,7 +12,7 @@
 ### Environment variables
 
 | Name           | Required | Value                    | Purpose                |
-|----------------|----------|--------------------------|------------------------|
+| -------------- | -------- | ------------------------ | ---------------------- |
 | `DEBUG`        | false    | cinerino-telemetry-api:* | Debug                  |
 | `NODE_ENV`     | true     |                          | Environment name       |
 | `MONGOLAB_URI` | true     |                          | MongoDB connection URI |

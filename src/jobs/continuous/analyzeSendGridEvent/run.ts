@@ -27,7 +27,7 @@ export default async () => {
                     <any>'analyzeSendGridEvent'
                 )({
                     taskRepo: taskRepo,
-                    connection: cinerino.mongoose.connection
+                    connection: connection
                 });
             } catch (error) {
                 console.error(error);

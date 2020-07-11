@@ -27,7 +27,7 @@ export default async () => {
                     <any>'analyzeGMONotification'
                 )({
                     taskRepo: taskRepo,
-                    connection: cinerino.mongoose.connection
+                    connection: connection
                 });
             } catch (error) {
                 console.error(error);

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.APIError = void 0;
 /**
  * APIError
  */
@@ -16,7 +17,7 @@ class APIError extends Error {
     toObject() {
         return {
             errors: this.errors.map((error) => {
-                return Object.assign({}, error, { message: error.message });
+                return Object.assign(Object.assign({}, error), { message: error.message });
             }),
             code: this.code,
             message: this.message

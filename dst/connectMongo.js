@@ -1,18 +1,20 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.connectMongo = void 0;
 /**
  * MongoDBコネクション確立
  */
-const cinerino = require("@cinerino/telemetry-domain");
 const createDebug = require("debug");
+const mongoose = require("mongoose");
 const debug = createDebug('cinerino-telemetry-api:connectMongo');
 const PING_INTERVAL = 10000;
 const MONGOLAB_URI = process.env.MONGOLAB_URI;
@@ -30,11 +32,11 @@ function connectMongo(params) {
         let connection;
         if (params === undefined || params.defaultConnection) {
             // コネクション確立
-            yield cinerino.mongoose.connect(MONGOLAB_URI, connectOptions);
-            connection = cinerino.mongoose.connection;
+            yield mongoose.connect(MONGOLAB_URI, connectOptions);
+            connection = mongoose.connection;
         }
         else {
-            connection = cinerino.mongoose.createConnection(MONGOLAB_URI, connectOptions);
+            connection = mongoose.createConnection(MONGOLAB_URI, connectOptions);
         }
         // 定期的にコネクションチェック
         // tslint:disable-next-line:no-single-line-block-comment
