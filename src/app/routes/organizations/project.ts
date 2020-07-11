@@ -6,7 +6,7 @@ import * as GMO from '@motionpicture/gmo-service';
 import { Router } from 'express';
 // tslint:disable-next-line:no-submodule-imports
 import { body } from 'express-validator/check';
-import { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK } from 'http-status';
+import { CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT } from 'http-status';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as util from 'util';
@@ -45,41 +45,6 @@ projectRouter.post(
             };
             const task = await taskRepo.save(attributes);
             res.status(CREATED).json(task);
-        } catch (error) {
-            next(error);
-        }
-    }
-);
-
-/**
- * 取引ウェブフック受信
- */
-projectRouter.post(
-    '/:projectId/webhooks/onPlaceOrderEnded',
-    ...[
-        body('data')
-            .not()
-            .isEmpty()
-            .withMessage(() => 'required')
-    ],
-    validator,
-    async (req, res, next) => {
-        try {
-            const taskRepo = new cinerino.repository.Task(mongoose.connection);
-            const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
-                name: <any>'analyzePlaceOrder',
-                project: { typeOf: cinerino.factory.organizationType.Project, id: req.params.projectId },
-                status: cinerino.factory.taskStatus.Ready,
-                runsAt: new Date(),
-                remainingNumberOfTries: 3,
-                numberOfTried: 0,
-                executionResults: [],
-                data: req.body.data
-            };
-            await taskRepo.save(attributes);
-
-            res.status(NO_CONTENT)
-                .end();
         } catch (error) {
             next(error);
         }
@@ -147,42 +112,6 @@ projectRouter.post('/:projectId/gmo/notify', async (req, res) => {
         res.send(RECV_RES_OK);
     } catch (error) {
         res.send(RECV_RES_NG);
-    }
-});
-
-projectRouter.post('/:projectId/sendGrid/event/notify', async (req, res) => {
-    const events = req.body;
-
-    if (!Array.isArray(events)) {
-        res.status(BAD_REQUEST).end();
-
-        return;
-    }
-
-    // リクエストボディから分析タスク生成
-    try {
-        const taskRepo = new cinerino.repository.Task(mongoose.connection);
-
-        await Promise.all(events.map(async (event) => {
-            const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
-                name: <any>'analyzeSendGridEvent',
-                project: { typeOf: cinerino.factory.organizationType.Project, id: req.params.projectId },
-                status: cinerino.factory.taskStatus.Ready,
-                runsAt: new Date(),
-                remainingNumberOfTries: 3,
-                numberOfTried: 0,
-                executionResults: [],
-                data: <any>{
-                    event: event,
-                    project: { id: req.params.projectId }
-                }
-            };
-            await taskRepo.save(attributes);
-        }));
-
-        res.status(OK).end();
-    } catch (error) {
-        res.status(INTERNAL_SERVER_ERROR).end();
     }
 });
 

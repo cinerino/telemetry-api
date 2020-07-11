@@ -56,35 +56,6 @@ projectRouter.post('/:projectId/tasks/:name',
     }
 }));
 /**
- * 取引ウェブフック受信
- */
-projectRouter.post('/:projectId/webhooks/onPlaceOrderEnded', ...[
-    check_1.body('data')
-        .not()
-        .isEmpty()
-        .withMessage(() => 'required')
-], validator_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const taskRepo = new cinerino.repository.Task(mongoose.connection);
-        const attributes = {
-            name: 'analyzePlaceOrder',
-            project: { typeOf: cinerino.factory.organizationType.Project, id: req.params.projectId },
-            status: cinerino.factory.taskStatus.Ready,
-            runsAt: new Date(),
-            remainingNumberOfTries: 3,
-            numberOfTried: 0,
-            executionResults: [],
-            data: req.body.data
-        };
-        yield taskRepo.save(attributes);
-        res.status(http_status_1.NO_CONTENT)
-            .end();
-    }
-    catch (error) {
-        next(error);
-    }
-}));
-/**
  * テレメトリー検索
  */
 projectRouter.get('/:projectId/telemetry/:telemetryType', 
@@ -140,37 +111,6 @@ projectRouter.post('/:projectId/gmo/notify', (req, res) => __awaiter(void 0, voi
     }
     catch (error) {
         res.send(RECV_RES_NG);
-    }
-}));
-projectRouter.post('/:projectId/sendGrid/event/notify', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const events = req.body;
-    if (!Array.isArray(events)) {
-        res.status(http_status_1.BAD_REQUEST).end();
-        return;
-    }
-    // リクエストボディから分析タスク生成
-    try {
-        const taskRepo = new cinerino.repository.Task(mongoose.connection);
-        yield Promise.all(events.map((event) => __awaiter(void 0, void 0, void 0, function* () {
-            const attributes = {
-                name: 'analyzeSendGridEvent',
-                project: { typeOf: cinerino.factory.organizationType.Project, id: req.params.projectId },
-                status: cinerino.factory.taskStatus.Ready,
-                runsAt: new Date(),
-                remainingNumberOfTries: 3,
-                numberOfTried: 0,
-                executionResults: [],
-                data: {
-                    event: event,
-                    project: { id: req.params.projectId }
-                }
-            };
-            yield taskRepo.save(attributes);
-        })));
-        res.status(http_status_1.OK).end();
-    }
-    catch (error) {
-        res.status(http_status_1.INTERNAL_SERVER_ERROR).end();
     }
 }));
 /**

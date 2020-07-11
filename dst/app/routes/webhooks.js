@@ -57,4 +57,42 @@ webhooksRouter.post('/onPlaceOrderEnded', ...[
         next(error);
     }
 }));
+webhooksRouter.post('/sendGrid/event/notify', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const events = req.body;
+    if (!Array.isArray(events)) {
+        res.status(http_status_1.BAD_REQUEST)
+            .end();
+        return;
+    }
+    // リクエストボディから分析タスク生成
+    try {
+        const taskRepo = new cinerino.repository.Task(mongoose.connection);
+        yield Promise.all(events.map((event) => __awaiter(void 0, void 0, void 0, function* () {
+            // SendGridへのユニーク引数でプロジェクトが指定されているはず
+            const projectId = event.projectId;
+            if (typeof projectId === 'string') {
+                const attributes = {
+                    name: 'analyzeSendGridEvent',
+                    project: { typeOf: cinerino.factory.organizationType.Project, id: projectId },
+                    status: cinerino.factory.taskStatus.Ready,
+                    runsAt: new Date(),
+                    remainingNumberOfTries: 3,
+                    numberOfTried: 0,
+                    executionResults: [],
+                    data: {
+                        event: event,
+                        project: { typeOf: cinerino.factory.organizationType.Project, id: projectId }
+                    }
+                };
+                yield taskRepo.save(attributes);
+            }
+        })));
+        res.status(http_status_1.OK)
+            .end();
+    }
+    catch (error) {
+        res.status(http_status_1.INTERNAL_SERVER_ERROR)
+            .end();
+    }
+}));
 exports.default = webhooksRouter;
