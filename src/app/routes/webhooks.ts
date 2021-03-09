@@ -7,6 +7,7 @@ import { Router } from 'express';
 import { body } from 'express-validator/check';
 import { BAD_REQUEST, INTERNAL_SERVER_ERROR, NO_CONTENT, OK } from 'http-status';
 import * as mongoose from 'mongoose';
+import * as util from 'util';
 
 import authentication from '../middlewares/authentication';
 import validator from '../middlewares/validator';
@@ -100,5 +101,26 @@ webhooksRouter.post(
         }
     }
 );
+
+/**
+ * 汎用的なLINE連携
+ */
+webhooksRouter.post('/lineNotify', async (req, res) => {
+    const data = req.body.data;
+
+    try {
+        const message = `project.id: ${data?.project?.id}
+${util.inspect(data, { depth: 0 })}
+`;
+
+        await cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
+
+        res.status(NO_CONTENT)
+            .end();
+    } catch (error) {
+        res.status(INTERNAL_SERVER_ERROR)
+            .end();
+    }
+});
 
 export default webhooksRouter;

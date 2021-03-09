@@ -18,6 +18,7 @@ const express_1 = require("express");
 const check_1 = require("express-validator/check");
 const http_status_1 = require("http-status");
 const mongoose = require("mongoose");
+const util = require("util");
 const authentication_1 = require("../middlewares/authentication");
 const validator_1 = require("../middlewares/validator");
 const webhooksRouter = express_1.Router();
@@ -88,6 +89,25 @@ webhooksRouter.post('/sendGrid/event/notify', (req, res) => __awaiter(void 0, vo
             }
         })));
         res.status(http_status_1.OK)
+            .end();
+    }
+    catch (error) {
+        res.status(http_status_1.INTERNAL_SERVER_ERROR)
+            .end();
+    }
+}));
+/**
+ * 汎用的なLINE連携
+ */
+webhooksRouter.post('/lineNotify', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _c;
+    const data = req.body.data;
+    try {
+        const message = `project.id: ${(_c = data === null || data === void 0 ? void 0 : data.project) === null || _c === void 0 ? void 0 : _c.id}
+${util.inspect(data, { depth: 0 })}
+`;
+        yield cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
+        res.status(http_status_1.NO_CONTENT)
             .end();
     }
     catch (error) {
