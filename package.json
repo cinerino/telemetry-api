@@ -9,7 +9,7 @@
     }
   ],
   "dependencies": {
-    "@cinerino/telemetry-domain": "1.0.0-alpha.11",
+    "@cinerino/telemetry-domain": "1.0.0-alpha.12",
     "@motionpicture/express-middleware": "^0.1.1",
     "@motionpicture/gmo-service": "^4.3.0",
     "body-parser": "^1.18.3",
