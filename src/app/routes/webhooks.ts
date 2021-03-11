@@ -34,18 +34,28 @@ webhooksRouter.post(
     validator,
     async (req, res, next) => {
         try {
-            const taskRepo = new cinerino.repository.Task(mongoose.connection);
-            const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
-                name: <any>'analyzePlaceOrder',
-                project: { typeOf: cinerino.factory.organizationType.Project, id: req.body.data?.project?.id },
-                status: cinerino.factory.taskStatus.Ready,
-                runsAt: new Date(),
-                remainingNumberOfTries: 3,
-                numberOfTried: 0,
-                executionResults: [],
-                data: req.body.data
-            };
-            await taskRepo.save(attributes);
+            const transaction = <cinerino.factory.transaction.ITransaction<cinerino.factory.transactionType>>req.body.data;
+            // 注文取引以外は未対応
+            if (transaction.typeOf === cinerino.factory.transactionType.PlaceOrder) {
+                // 同期的に分析処理
+                await cinerino.service.telemetry.analyzePlaceOrder(transaction)({
+                    telemetry: new cinerino.repository.Telemetry(mongoose.connection)
+                });
+
+            }
+
+            // const taskRepo = new cinerino.repository.Task(mongoose.connection);
+            // const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
+            //     name: <any>'analyzePlaceOrder',
+            //     project: { typeOf: cinerino.factory.organizationType.Project, id: req.body.data?.project?.id },
+            //     status: cinerino.factory.taskStatus.Ready,
+            //     runsAt: new Date(),
+            //     remainingNumberOfTries: 3,
+            //     numberOfTried: 0,
+            //     executionResults: [],
+            //     data: req.body.data
+            // };
+            // await taskRepo.save(attributes);
 
             res.status(NO_CONTENT)
                 .end();
@@ -77,7 +87,7 @@ webhooksRouter.post(
                 if (typeof projectId === 'string') {
                     const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
                         name: <any>'analyzeSendGridEvent',
-                        project: { typeOf: cinerino.factory.organizationType.Project, id: projectId },
+                        project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: projectId },
                         status: cinerino.factory.taskStatus.Ready,
                         runsAt: new Date(),
                         remainingNumberOfTries: 3,
@@ -85,7 +95,7 @@ webhooksRouter.post(
                         executionResults: [],
                         data: <any>{
                             event: event,
-                            project: { typeOf: cinerino.factory.organizationType.Project, id: projectId }
+                            project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: projectId }
                         }
                     };
 

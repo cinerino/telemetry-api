@@ -8,7 +8,7 @@ declare global {
         /**
          * APIユーザー(Cognitから認可を受ける)
          */
-        export type IUser = cinerino.factory.clientUser.IClientUser;
+        export type IUser = cinerino.factory.chevre.clientUser.IClientUser;
         // tslint:disable-next-line:interface-name
         export interface Request {
             agent: cinerino.factory.person.IPerson;

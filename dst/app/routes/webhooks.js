@@ -37,20 +37,27 @@ webhooksRouter.post('/onPlaceOrderEnded', ...[
         .withMessage(() => 'required')
         .isString()
 ], validator_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
     try {
-        const taskRepo = new cinerino.repository.Task(mongoose.connection);
-        const attributes = {
-            name: 'analyzePlaceOrder',
-            project: { typeOf: cinerino.factory.organizationType.Project, id: (_b = (_a = req.body.data) === null || _a === void 0 ? void 0 : _a.project) === null || _b === void 0 ? void 0 : _b.id },
-            status: cinerino.factory.taskStatus.Ready,
-            runsAt: new Date(),
-            remainingNumberOfTries: 3,
-            numberOfTried: 0,
-            executionResults: [],
-            data: req.body.data
-        };
-        yield taskRepo.save(attributes);
+        const transaction = req.body.data;
+        // 注文取引以外は未対応
+        if (transaction.typeOf === cinerino.factory.transactionType.PlaceOrder) {
+            // 同期的に分析処理
+            yield cinerino.service.telemetry.analyzePlaceOrder(transaction)({
+                telemetry: new cinerino.repository.Telemetry(mongoose.connection)
+            });
+        }
+        // const taskRepo = new cinerino.repository.Task(mongoose.connection);
+        // const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
+        //     name: <any>'analyzePlaceOrder',
+        //     project: { typeOf: cinerino.factory.organizationType.Project, id: req.body.data?.project?.id },
+        //     status: cinerino.factory.taskStatus.Ready,
+        //     runsAt: new Date(),
+        //     remainingNumberOfTries: 3,
+        //     numberOfTried: 0,
+        //     executionResults: [],
+        //     data: req.body.data
+        // };
+        // await taskRepo.save(attributes);
         res.status(http_status_1.NO_CONTENT)
             .end();
     }
@@ -74,7 +81,7 @@ webhooksRouter.post('/sendGrid/event/notify', (req, res) => __awaiter(void 0, vo
             if (typeof projectId === 'string') {
                 const attributes = {
                     name: 'analyzeSendGridEvent',
-                    project: { typeOf: cinerino.factory.organizationType.Project, id: projectId },
+                    project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: projectId },
                     status: cinerino.factory.taskStatus.Ready,
                     runsAt: new Date(),
                     remainingNumberOfTries: 3,
@@ -82,7 +89,7 @@ webhooksRouter.post('/sendGrid/event/notify', (req, res) => __awaiter(void 0, vo
                     executionResults: [],
                     data: {
                         event: event,
-                        project: { typeOf: cinerino.factory.organizationType.Project, id: projectId }
+                        project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: projectId }
                     }
                 };
                 yield taskRepo.save(attributes);
@@ -100,10 +107,10 @@ webhooksRouter.post('/sendGrid/event/notify', (req, res) => __awaiter(void 0, vo
  * 汎用的なLINE連携
  */
 webhooksRouter.post('/lineNotify', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
+    var _a;
     const data = req.body.data;
     try {
-        const message = `project.id: ${(_c = data === null || data === void 0 ? void 0 : data.project) === null || _c === void 0 ? void 0 : _c.id}
+        const message = `project.id: ${(_a = data === null || data === void 0 ? void 0 : data.project) === null || _a === void 0 ? void 0 : _a.id}
 ${util.inspect(data, { depth: 0 })}
 `;
         yield cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();

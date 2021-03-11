@@ -40,7 +40,7 @@ projectRouter.post('/:projectId/tasks/:name',
         const taskRepo = new cinerino.repository.Task(mongoose.connection);
         const attributes = {
             name: req.params.name,
-            project: { typeOf: cinerino.factory.organizationType.Project, id: req.params.projectId },
+            project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: req.params.projectId },
             status: cinerino.factory.taskStatus.Ready,
             runsAt: new Date(),
             remainingNumberOfTries: 3,
@@ -95,7 +95,7 @@ projectRouter.post('/:projectId/gmo/notify', (req, res) => __awaiter(void 0, voi
         const taskRepo = new cinerino.repository.Task(mongoose.connection);
         const attributes = {
             name: 'analyzeGMONotification',
-            project: { typeOf: cinerino.factory.organizationType.Project, id: req.params.projectId },
+            project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: req.params.projectId },
             status: cinerino.factory.taskStatus.Ready,
             runsAt: new Date(),
             remainingNumberOfTries: 3,
