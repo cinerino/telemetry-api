@@ -6,6 +6,7 @@ import { Router } from 'express';
 // tslint:disable-next-line:no-submodule-imports
 import { body } from 'express-validator/check';
 import { BAD_REQUEST, INTERNAL_SERVER_ERROR, NO_CONTENT, OK } from 'http-status';
+import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as util from 'util';
 
@@ -24,19 +25,25 @@ webhooksRouter.post(
         body('data')
             .not()
             .isEmpty()
-            .withMessage(() => 'required'),
-        body('data.project.id')
-            .not()
-            .isEmpty()
             .withMessage(() => 'required')
-            .isString()
     ],
     validator,
     async (req, res, next) => {
         try {
-            const transaction = <cinerino.factory.transaction.ITransaction<cinerino.factory.transactionType>>req.body.data;
+            const transaction = <cinerino.factory.transaction.ITransaction<cinerino.factory.transactionType> | undefined>req.body.data;
+
+            // Mongo trigger対応
+            if (typeof transaction?.startDate === 'object' && transaction.startDate !== undefined && transaction.startDate !== null) {
+                transaction.startDate = moment((<any>transaction).startDate.$date)
+                    .toDate();
+            }
+            if (typeof transaction?.endDate === 'object' && transaction.endDate !== undefined && transaction.endDate !== null) {
+                transaction.endDate = moment((<any>transaction).endDate.$date)
+                    .toDate();
+            }
+
             // 注文取引以外は未対応
-            if (transaction.typeOf === cinerino.factory.transactionType.PlaceOrder) {
+            if (transaction?.typeOf === cinerino.factory.transactionType.PlaceOrder) {
                 // 同期的に分析処理
                 await cinerino.service.telemetry.analyzePlaceOrder(transaction)({
                     telemetry: new cinerino.repository.Telemetry(mongoose.connection)
