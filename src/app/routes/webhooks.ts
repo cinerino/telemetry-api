@@ -2,16 +2,19 @@
  * ウェブフックルーター(マルチプロジェクト前提)
  */
 import * as cinerino from '@cinerino/telemetry-domain';
+// import * as EJSON from 'ejson';
 import { Router } from 'express';
 // tslint:disable-next-line:no-submodule-imports
 import { body } from 'express-validator/check';
 import { BAD_REQUEST, INTERNAL_SERVER_ERROR, NO_CONTENT, OK } from 'http-status';
-import * as moment from 'moment';
+// import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as util from 'util';
 
 import authentication from '../middlewares/authentication';
 import validator from '../middlewares/validator';
+
+const USE_SAVE_TRANSACTIONS = process.env.USE_SAVE_TRANSACTIONS === '1';
 
 const webhooksRouter = Router();
 webhooksRouter.use(authentication);
@@ -30,25 +33,49 @@ webhooksRouter.post(
     validator,
     async (req, res, next) => {
         try {
+            // const transaction = <cinerino.factory.transaction.ITransaction<cinerino.factory.transactionType> | undefined>
+            //     EJSON.fromJSONValue(JSON.stringify(req.body.data));
+            if (typeof req.body.data === 'string') {
+                req.body.data = JSON.parse(req.body.data);
+            }
             const transaction = <cinerino.factory.transaction.ITransaction<cinerino.factory.transactionType> | undefined>req.body.data;
 
             // Mongo trigger対応
-            if (typeof transaction?.startDate === 'object' && transaction.startDate !== undefined && transaction.startDate !== null) {
-                transaction.startDate = moment((<any>transaction).startDate.$date)
-                    .toDate();
-            }
-            if (typeof transaction?.endDate === 'object' && transaction.endDate !== undefined && transaction.endDate !== null) {
-                transaction.endDate = moment((<any>transaction).endDate.$date)
-                    .toDate();
-            }
+            // if (typeof transaction?.startDate === 'object' && transaction.startDate !== undefined && transaction.startDate !== null) {
+            //     transaction.startDate = moment((<any>transaction).startDate.$date)
+            //         .toDate();
+            // }
+            // if (typeof transaction?.endDate === 'object' && transaction.endDate !== undefined && transaction.endDate !== null) {
+            //     transaction.endDate = moment((<any>transaction).endDate.$date)
+            //         .toDate();
+            // }
+            // if (typeof transaction?.result?.order !== undefined && typeof transaction?.result?.order.price === 'object') {
+            //     transaction.result.order.price = Number(transaction.result.order.price.$numberInt);
+            // }
 
             // 注文取引以外は未対応
             if (transaction?.typeOf === cinerino.factory.transactionType.PlaceOrder) {
+                if (transaction.status !== cinerino.factory.transactionStatusType.InProgress) {
+                    if (USE_SAVE_TRANSACTIONS) {
+                        // 取引保管
+                        const transactionRepo = new cinerino.repository.Transaction(mongoose.connection);
+                        const update: any = { ...transaction };
+                        delete update._id;
+                        delete update.createdAt;
+                        delete update.updatedAt;
+                        await transactionRepo.transactionModel.findByIdAndUpdate(
+                            String((<any>transaction)._id),
+                            { $setOnInsert: update },
+                            { upsert: true }
+                        )
+                            .exec();
+                    }
+                }
+
                 // 同期的に分析処理
                 await cinerino.service.telemetry.analyzePlaceOrder(transaction)({
                     telemetry: new cinerino.repository.Telemetry(mongoose.connection)
                 });
-
             }
 
             // const taskRepo = new cinerino.repository.Task(mongoose.connection);

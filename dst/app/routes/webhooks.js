@@ -13,15 +13,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * ウェブフックルーター(マルチプロジェクト前提)
  */
 const cinerino = require("@cinerino/telemetry-domain");
+// import * as EJSON from 'ejson';
 const express_1 = require("express");
 // tslint:disable-next-line:no-submodule-imports
 const check_1 = require("express-validator/check");
 const http_status_1 = require("http-status");
-const moment = require("moment");
+// import * as moment from 'moment';
 const mongoose = require("mongoose");
 const util = require("util");
 const authentication_1 = require("../middlewares/authentication");
 const validator_1 = require("../middlewares/validator");
+const USE_SAVE_TRANSACTIONS = process.env.USE_SAVE_TRANSACTIONS === '1';
 const webhooksRouter = express_1.Router();
 webhooksRouter.use(authentication_1.default);
 /**
@@ -34,18 +36,38 @@ webhooksRouter.post('/onPlaceOrderEnded', ...[
         .withMessage(() => 'required')
 ], validator_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        // const transaction = <cinerino.factory.transaction.ITransaction<cinerino.factory.transactionType> | undefined>
+        //     EJSON.fromJSONValue(JSON.stringify(req.body.data));
+        if (typeof req.body.data === 'string') {
+            req.body.data = JSON.parse(req.body.data);
+        }
         const transaction = req.body.data;
         // Mongo trigger対応
-        if (typeof (transaction === null || transaction === void 0 ? void 0 : transaction.startDate) === 'object' && transaction.startDate !== undefined && transaction.startDate !== null) {
-            transaction.startDate = moment(transaction.startDate.$date)
-                .toDate();
-        }
-        if (typeof (transaction === null || transaction === void 0 ? void 0 : transaction.endDate) === 'object' && transaction.endDate !== undefined && transaction.endDate !== null) {
-            transaction.endDate = moment(transaction.endDate.$date)
-                .toDate();
-        }
+        // if (typeof transaction?.startDate === 'object' && transaction.startDate !== undefined && transaction.startDate !== null) {
+        //     transaction.startDate = moment((<any>transaction).startDate.$date)
+        //         .toDate();
+        // }
+        // if (typeof transaction?.endDate === 'object' && transaction.endDate !== undefined && transaction.endDate !== null) {
+        //     transaction.endDate = moment((<any>transaction).endDate.$date)
+        //         .toDate();
+        // }
+        // if (typeof transaction?.result?.order !== undefined && typeof transaction?.result?.order.price === 'object') {
+        //     transaction.result.order.price = Number(transaction.result.order.price.$numberInt);
+        // }
         // 注文取引以外は未対応
         if ((transaction === null || transaction === void 0 ? void 0 : transaction.typeOf) === cinerino.factory.transactionType.PlaceOrder) {
+            if (transaction.status !== cinerino.factory.transactionStatusType.InProgress) {
+                if (USE_SAVE_TRANSACTIONS) {
+                    // 取引保管
+                    const transactionRepo = new cinerino.repository.Transaction(mongoose.connection);
+                    const update = Object.assign({}, transaction);
+                    delete update._id;
+                    delete update.createdAt;
+                    delete update.updatedAt;
+                    yield transactionRepo.transactionModel.findByIdAndUpdate(String(transaction._id), { $setOnInsert: update }, { upsert: true })
+                        .exec();
+                }
+            }
             // 同期的に分析処理
             yield cinerino.service.telemetry.analyzePlaceOrder(transaction)({
                 telemetry: new cinerino.repository.Telemetry(mongoose.connection)
