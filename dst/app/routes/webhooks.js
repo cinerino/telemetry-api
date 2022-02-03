@@ -153,7 +153,7 @@ ${util.inspect(data, { depth: 0 })}
  * 予約のLINE連携
  */
 webhooksRouter.post('/lineNotify/reservations', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
+    var _b, _c;
     try {
         let data = req.body.data;
         if (typeof data === 'string') {
@@ -161,7 +161,8 @@ webhooksRouter.post('/lineNotify/reservations', (req, res) => __awaiter(void 0, 
         }
         if (data.typeOf === cinerino.factory.chevre.reservationType.EventReservation) {
             const message = `project.id: ${(_b = data === null || data === void 0 ? void 0 : data.project) === null || _b === void 0 ? void 0 : _b.id}
-            ${util.inspect(data.underName, { depth: 0 })}
+            ${util.inspect(data === null || data === void 0 ? void 0 : data.underName, { depth: 0 })}
+            ${util.inspect((_c = data === null || data === void 0 ? void 0 : data.reservedTicket) === null || _c === void 0 ? void 0 : _c.underName, { depth: 0 })}
             `;
             yield cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
         }

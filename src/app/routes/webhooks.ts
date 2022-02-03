@@ -179,7 +179,8 @@ webhooksRouter.post('/lineNotify/reservations', async (req, res) => {
 
         if (data.typeOf === cinerino.factory.chevre.reservationType.EventReservation) {
             const message = `project.id: ${data?.project?.id}
-            ${util.inspect(data.underName, { depth: 0 })}
+            ${util.inspect(data?.underName, { depth: 0 })}
+            ${util.inspect(data?.reservedTicket?.underName, { depth: 0 })}
             `;
 
             await cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
