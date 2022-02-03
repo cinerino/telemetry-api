@@ -149,4 +149,28 @@ ${util.inspect(data, { depth: 0 })}
             .end();
     }
 }));
+/**
+ * 予約のLINE連携
+ */
+webhooksRouter.post('/lineNotify/reservations', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    try {
+        let data = req.body.data;
+        if (typeof data === 'string') {
+            data = JSON.parse(req.body.data);
+        }
+        if (data.typeOf === cinerino.factory.chevre.reservationType.EventReservation) {
+            const message = `project.id: ${(_b = data === null || data === void 0 ? void 0 : data.project) === null || _b === void 0 ? void 0 : _b.id}
+            ${util.inspect(data.underName, { depth: 0 })}
+            `;
+            yield cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
+        }
+        res.status(http_status_1.NO_CONTENT)
+            .end();
+    }
+    catch (error) {
+        res.status(http_status_1.INTERNAL_SERVER_ERROR)
+            .end();
+    }
+}));
 exports.default = webhooksRouter;
