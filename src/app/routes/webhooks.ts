@@ -153,10 +153,25 @@ webhooksRouter.post('/lineNotify', async (req, res) => {
     const data = req.body.data;
 
     try {
-        const message = `project.id: ${data?.project?.id}
+        let message = `projectId: ${data?.project?.id}
 ${util.inspect(data, { depth: 0 })}
 `;
 
+        let dataStr = '';
+        try {
+            dataStr = JSON.stringify(data);
+        } catch (error) {
+            // no op
+        }
+
+        message += `
+JSON.stringify↓
+${dataStr}
+`;
+
+        // 最大 1000文字
+        // tslint:disable-next-line:no-magic-numbers
+        message = `${message.slice(0, 900)}...`;
         await cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
 
         res.status(NO_CONTENT)
