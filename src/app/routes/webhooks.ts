@@ -196,10 +196,10 @@ webhooksRouter.get(
             doc = await notificationRepo.notificationModel.findById(req.params.notificationId)
                 .exec();
 
-            // tslint:disable-next-line:no-magic-numbers
-            const docStr = JSON.stringify(doc, null, 2).replace('\n', '<br>');
-
-            res.send(docStr);
+            res.render(
+                'webhooks/notifications/show',
+                { doc }
+            );
         } catch (error) {
             next(error);
         }
