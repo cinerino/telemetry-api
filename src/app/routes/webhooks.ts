@@ -152,21 +152,22 @@ webhooksRouter.post(
 webhooksRouter.post('/lineNotify', async (req, res) => {
     const data = req.body.data;
 
+    // DB保管
+    const notificationRepo = new cinerino.repository.Notification(mongoose.connection);
+
+    let documentId: string | undefined;
+    try {
+        const doc = await notificationRepo.notificationModel.create(data);
+        documentId = doc._id;
+    } catch (error) {
+        // no op
+    }
+
     try {
         let message = `projectId: ${data?.project?.id}
 ${util.inspect(data, { depth: 0 })}
-`;
 
-        let dataStr = '';
-        try {
-            dataStr = JSON.stringify(data);
-        } catch (error) {
-            // no op
-        }
-
-        message += `
-JSON.stringify↓
-${dataStr}
+https://${req.hostname}/webhooks/notifications/${documentId}
 `;
 
         // 最大 1000文字
@@ -181,6 +182,29 @@ ${dataStr}
             .end();
     }
 });
+
+/**
+ * 汎用的なLINE連携のメッセージ可読表示
+ */
+webhooksRouter.get(
+    '/notifications/:notificationId',
+    async (req, res, next) => {
+        try {
+            let doc: any;
+
+            const notificationRepo = new cinerino.repository.Notification(mongoose.connection);
+            doc = await notificationRepo.notificationModel.findById(req.params.notificationId)
+                .exec();
+
+            // tslint:disable-next-line:no-magic-numbers
+            const docStr = JSON.stringify(doc, null, 2).replace('\n', '<br>');
+
+            res.send(docStr);
+        } catch (error) {
+            next(error);
+        }
+    }
+);
 
 /**
  * 予約のLINE連携

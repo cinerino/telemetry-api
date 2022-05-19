@@ -136,20 +136,21 @@ webhooksRouter.post('/sendGrid/event/notify', (req, res) => __awaiter(void 0, vo
 webhooksRouter.post('/lineNotify', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const data = req.body.data;
+    // DB保管
+    const notificationRepo = new cinerino.repository.Notification(mongoose.connection);
+    let documentId;
+    try {
+        const doc = yield notificationRepo.notificationModel.create(data);
+        documentId = doc._id;
+    }
+    catch (error) {
+        // no op
+    }
     try {
         let message = `projectId: ${(_a = data === null || data === void 0 ? void 0 : data.project) === null || _a === void 0 ? void 0 : _a.id}
 ${util.inspect(data, { depth: 0 })}
-`;
-        let dataStr = '';
-        try {
-            dataStr = JSON.stringify(data);
-        }
-        catch (error) {
-            // no op
-        }
-        message += `
-JSON.stringify↓
-${dataStr}
+
+https://${req.hostname}/webhooks/notifications/${documentId}
 `;
         // 最大 1000文字
         // tslint:disable-next-line:no-magic-numbers
@@ -161,6 +162,23 @@ ${dataStr}
     catch (error) {
         res.status(http_status_1.INTERNAL_SERVER_ERROR)
             .end();
+    }
+}));
+/**
+ * 汎用的なLINE連携のメッセージ可読表示
+ */
+webhooksRouter.get('/notifications/:notificationId', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let doc;
+        const notificationRepo = new cinerino.repository.Notification(mongoose.connection);
+        doc = yield notificationRepo.notificationModel.findById(req.params.notificationId)
+            .exec();
+        // tslint:disable-next-line:no-magic-numbers
+        const docStr = JSON.stringify(doc, null, 2).replace('\n', '<br>');
+        res.send(docStr);
+    }
+    catch (error) {
+        next(error);
     }
 }));
 /**
