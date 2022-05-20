@@ -13,14 +13,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * 非同期ジョブ
  */
 const run_1 = require("./continuous/abortTasks/run");
-const run_2 = require("./continuous/analyzeGMONotification/run");
 // import analyzePlaceOrder from './continuous/analyzePlaceOrder/run';
-const run_3 = require("./continuous/analyzeSendGridEvent/run");
-const run_4 = require("./continuous/retryTasks/run");
+const run_2 = require("./continuous/analyzeSendGridEvent/run");
+const run_3 = require("./continuous/retryTasks/run");
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, run_1.default)();
-    yield (0, run_2.default)();
     // await analyzePlaceOrder();
+    yield (0, run_2.default)();
     yield (0, run_3.default)();
-    yield (0, run_4.default)();
 });

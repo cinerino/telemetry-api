@@ -13,7 +13,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * プロジェクトルーター
  */
 const cinerino = require("@cinerino/telemetry-domain");
-const GMO = require("@motionpicture/gmo-service");
 const express_1 = require("express");
 // tslint:disable-next-line:no-submodule-imports
 const check_1 = require("express-validator/check");
@@ -92,24 +91,10 @@ projectRouter.post('/:projectId/gmo/notify', (req, res) => __awaiter(void 0, voi
         res.send(RECV_RES_OK);
         return;
     }
-    // リクエストボディから分析タスク生成
+    // リクエストボディから通知保管
     try {
-        const notification = GMO.factory.resultNotification.creditCard.createFromRequestBody(req.body);
-        const taskRepo = new cinerino.repository.Task(mongoose.connection);
-        const attributes = {
-            name: 'analyzeGMONotification',
-            project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: req.params.projectId },
-            status: cinerino.factory.taskStatus.Ready,
-            runsAt: new Date(),
-            remainingNumberOfTries: 3,
-            numberOfTried: 0,
-            executionResults: [],
-            data: {
-                notification: notification,
-                project: { id: req.params.projectId }
-            }
-        };
-        yield taskRepo.save(attributes);
+        // const notification = GMO.factory.resultNotification.creditCard.createFromRequestBody(req.body);
+        // await taskRepo.save(attributes);
         res.send(RECV_RES_OK);
     }
     catch (error) {
