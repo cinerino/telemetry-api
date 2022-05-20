@@ -15,6 +15,12 @@ const router = express.Router();
 //   next()
 // })
 
+router.get(
+    '',
+    (__, res) => {
+        res.send('hello!');
+    }
+);
 router.use('/health', healthRouter);
 router.use('/organizations', organizationsRouter);
 router.use('/webhooks', webhooksRouter);

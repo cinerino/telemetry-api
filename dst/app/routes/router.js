@@ -13,6 +13,9 @@ const router = express.Router();
 //   debug('Time: ', Date.now())
 //   next()
 // })
+router.get('', (__, res) => {
+    res.send('hello!');
+});
 router.use('/health', health_1.default);
 router.use('/organizations', organizations_1.default);
 router.use('/webhooks', webhooks_1.default);
