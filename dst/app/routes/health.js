@@ -18,8 +18,10 @@ const mongoose = require("mongoose");
 const healthRouter = express.Router();
 healthRouter.get('', (_, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield mongoose.connection.db.admin().ping();
-        res.status(http_status_1.OK).send('healthy!');
+        yield mongoose.connection.db.admin()
+            .ping();
+        res.status(http_status_1.OK)
+            .send('healthy!');
     }
     catch (error) {
         next(error);

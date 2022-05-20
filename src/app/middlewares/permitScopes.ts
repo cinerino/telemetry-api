@@ -1,11 +1,11 @@
 /**
  * スコープ許可ミドルウェア
- * @module middlewares.permitScopes
  */
-
 import * as cinerino from '@cinerino/telemetry-domain';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
+
+import { } from '../../@types/index';
 
 const debug = createDebug('cinerino-telemetry-api:middlewares');
 

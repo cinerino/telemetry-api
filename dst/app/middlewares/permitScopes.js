@@ -1,9 +1,8 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * スコープ許可ミドルウェア
- * @module middlewares.permitScopes
  */
-Object.defineProperty(exports, "__esModule", { value: true });
 const cinerino = require("@cinerino/telemetry-domain");
 const createDebug = require("debug");
 const debug = createDebug('cinerino-telemetry-api:middlewares');

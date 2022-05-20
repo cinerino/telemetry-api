@@ -24,13 +24,13 @@ const util = require("util");
 const authentication_1 = require("../middlewares/authentication");
 const validator_1 = require("../middlewares/validator");
 const USE_SAVE_TRANSACTIONS = process.env.USE_SAVE_TRANSACTIONS === '1';
-const webhooksRouter = express_1.Router();
+const webhooksRouter = (0, express_1.Router)();
 webhooksRouter.use(authentication_1.default);
 /**
  * 取引ウェブフック受信
  */
 webhooksRouter.post('/onPlaceOrderEnded', ...[
-    check_1.body('data')
+    (0, check_1.body)('data')
         .not()
         .isEmpty()
         .withMessage(() => 'required')
@@ -182,26 +182,24 @@ webhooksRouter.get('/notifications/:notificationId', (req, res, next) => __await
 /**
  * 予約のLINE連携
  */
-webhooksRouter.post('/lineNotify/reservations', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b, _c;
-    try {
-        let data = req.body.data;
-        if (typeof data === 'string') {
-            data = JSON.parse(req.body.data);
-        }
-        if (data.typeOf === cinerino.factory.chevre.reservationType.EventReservation) {
-            const message = `project.id: ${(_b = data === null || data === void 0 ? void 0 : data.project) === null || _b === void 0 ? void 0 : _b.id}
-            ${util.inspect(data === null || data === void 0 ? void 0 : data.underName, { depth: 0 })}
-            ${util.inspect((_c = data === null || data === void 0 ? void 0 : data.reservedTicket) === null || _c === void 0 ? void 0 : _c.underName, { depth: 0 })}
-            `;
-            yield cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
-        }
-        res.status(http_status_1.NO_CONTENT)
-            .end();
-    }
-    catch (error) {
-        res.status(http_status_1.INTERNAL_SERVER_ERROR)
-            .end();
-    }
-}));
+// webhooksRouter.post('/lineNotify/reservations', async (req, res) => {
+//     try {
+//         let data: any = req.body.data;
+//         if (typeof data === 'string') {
+//             data = JSON.parse(req.body.data);
+//         }
+//         if (data.typeOf === cinerino.factory.chevre.reservationType.EventReservation) {
+//             const message = `project.id: ${data?.project?.id}
+//             ${util.inspect(data?.underName, { depth: 0 })}
+//             ${util.inspect(data?.reservedTicket?.underName, { depth: 0 })}
+//             `;
+//             await cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
+//         }
+//         res.status(NO_CONTENT)
+//             .end();
+//     } catch (error) {
+//         res.status(INTERNAL_SERVER_ERROR)
+//             .end();
+//     }
+// });
 exports.default = webhooksRouter;

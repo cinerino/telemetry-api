@@ -44,7 +44,8 @@ projectRouter.post(
                 data: req.body.data
             };
             const task = await taskRepo.save(attributes);
-            res.status(CREATED).json(task);
+            res.status(CREATED)
+                .json(task);
         } catch (error) {
             next(error);
         }
@@ -64,8 +65,10 @@ projectRouter.get(
             const datas = await cinerino.service.telemetry.search({
                 projectId: req.params.projectId,
                 telemetryType: req.params.telemetryType,
-                measureFrom: moment(req.query.measureFrom).toDate(),
-                measureThrough: moment(req.query.measureThrough).toDate(),
+                measureFrom: moment(req.query.measureFrom)
+                    .toDate(),
+                measureThrough: moment(req.query.measureThrough)
+                    .toDate(),
                 scope: cinerino.service.telemetry.TelemetryScope.Global
             })({ telemetry: telemetryRepo });
             res.json(datas);
@@ -128,9 +131,11 @@ ${util.inspect(data, { depth: 0 })}
 
         await cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
 
-        res.status(NO_CONTENT).end();
+        res.status(NO_CONTENT)
+            .end();
     } catch (error) {
-        res.status(INTERNAL_SERVER_ERROR).end();
+        res.status(INTERNAL_SERVER_ERROR)
+            .end();
     }
 });
 

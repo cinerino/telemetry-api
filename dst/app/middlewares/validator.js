@@ -1,9 +1,4 @@
 "use strict";
-/**
- * バリデーターミドルウェア
- * リクエストのパラメータ(query strings or body parameters)に対するバリデーション
- * @module middlewares.validator
- */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -14,6 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * バリデーターミドルウェア
+ * リクエストのパラメータ(query strings or body parameters)に対するバリデーション
+ */
 const cinerino = require("@cinerino/telemetry-domain");
 const createDebug = require("debug");
 const http_status_1 = require("http-status");
@@ -22,7 +21,8 @@ const debug = createDebug('cinerino-telemetry-api:middlewares');
 exports.default = (req, __, next) => __awaiter(void 0, void 0, void 0, function* () {
     const validatorResult = yield req.getValidationResult();
     if (!validatorResult.isEmpty()) {
-        const errors = validatorResult.array().map((mappedRrror) => {
+        const errors = validatorResult.array()
+            .map((mappedRrror) => {
             return new cinerino.factory.errors.Argument(mappedRrror.param, mappedRrror.msg);
         });
         debug('validation result not empty...', errors);

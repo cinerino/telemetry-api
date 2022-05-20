@@ -9,7 +9,9 @@ const http = require("http");
 const app = require("./app/app");
 const run_1 = require("./jobs/run");
 const debug = createDebug('cinerino-telemetry-api:server');
-run_1.default().then().catch((err) => {
+(0, run_1.default)()
+    .then()
+    .catch((err) => {
     // tslint:disable-next-line:no-console
     console.error('runJobs:', err);
     process.exit(1);

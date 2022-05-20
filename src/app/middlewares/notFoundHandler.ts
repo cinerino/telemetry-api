@@ -1,8 +1,6 @@
 /**
  * 404ハンドラーミドルウェア
- * @module middlewares.notFoundHandler
  */
-
 import * as cinerino from '@cinerino/telemetry-domain';
 import { NextFunction, Request, Response } from 'express';
 

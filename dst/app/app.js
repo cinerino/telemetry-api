@@ -69,7 +69,9 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(expressValidator({})); // this line must be immediately after any of the bodyParser middlewares!
 // 静的ファイル
 // app.use(express.static(__dirname + '/../../public'));
-connectMongo_1.connectMongo({ defaultConnection: true }).then().catch((err) => {
+(0, connectMongo_1.connectMongo)({ defaultConnection: true })
+    .then()
+    .catch((err) => {
     // tslint:disable-next-line:no-console
     console.error('connetMongo:', err);
     process.exit(1);

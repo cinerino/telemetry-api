@@ -10,8 +10,10 @@ healthRouter.get(
     '',
     async (_, res, next) => {
         try {
-            await mongoose.connection.db.admin().ping();
-            res.status(OK).send('healthy!');
+            await mongoose.connection.db.admin()
+                .ping();
+            res.status(OK)
+                .send('healthy!');
         } catch (error) {
             next(error);
         }

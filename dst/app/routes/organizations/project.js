@@ -23,7 +23,7 @@ const mongoose = require("mongoose");
 const util = require("util");
 const authentication_1 = require("../../middlewares/authentication");
 const validator_1 = require("../../middlewares/validator");
-const projectRouter = express_1.Router();
+const projectRouter = (0, express_1.Router)();
 projectRouter.use(authentication_1.default);
 /**
  * タスク追加
@@ -31,7 +31,7 @@ projectRouter.use(authentication_1.default);
 projectRouter.post('/:projectId/tasks/:name', 
 // permitScopes(['admin']),
 ...[
-    check_1.body('data')
+    (0, check_1.body)('data')
         .not()
         .isEmpty()
         .withMessage(() => 'required')
@@ -49,7 +49,8 @@ projectRouter.post('/:projectId/tasks/:name',
             data: req.body.data
         };
         const task = yield taskRepo.save(attributes);
-        res.status(http_status_1.CREATED).json(task);
+        res.status(http_status_1.CREATED)
+            .json(task);
     }
     catch (error) {
         next(error);
@@ -66,8 +67,10 @@ validator_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         const datas = yield cinerino.service.telemetry.search({
             projectId: req.params.projectId,
             telemetryType: req.params.telemetryType,
-            measureFrom: moment(req.query.measureFrom).toDate(),
-            measureThrough: moment(req.query.measureThrough).toDate(),
+            measureFrom: moment(req.query.measureFrom)
+                .toDate(),
+            measureThrough: moment(req.query.measureThrough)
+                .toDate(),
             scope: cinerino.service.telemetry.TelemetryScope.Global
         })({ telemetry: telemetryRepo });
         res.json(datas);
@@ -123,10 +126,12 @@ projectRouter.post('/:projectId/lineNotify', (req, res) => __awaiter(void 0, voi
 ${util.inspect(data, { depth: 0 })}
 `;
         yield cinerino.service.notification.report2developers('Message from Cinerino Telemetry', message)();
-        res.status(http_status_1.NO_CONTENT).end();
+        res.status(http_status_1.NO_CONTENT)
+            .end();
     }
     catch (error) {
-        res.status(http_status_1.INTERNAL_SERVER_ERROR).end();
+        res.status(http_status_1.INTERNAL_SERVER_ERROR)
+            .end();
     }
 }));
 exports.default = projectRouter;

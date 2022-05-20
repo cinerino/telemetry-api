@@ -18,9 +18,9 @@ const run_2 = require("./continuous/analyzeGMONotification/run");
 const run_3 = require("./continuous/analyzeSendGridEvent/run");
 const run_4 = require("./continuous/retryTasks/run");
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield run_1.default();
-    yield run_2.default();
+    yield (0, run_1.default)();
+    yield (0, run_2.default)();
     // await analyzePlaceOrder();
-    yield run_3.default();
-    yield run_4.default();
+    yield (0, run_3.default)();
+    yield (0, run_4.default)();
 });
