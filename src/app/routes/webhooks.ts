@@ -157,7 +157,7 @@ webhooksRouter.post('/lineNotify', async (req, res) => {
 
     let documentId: string | undefined;
     try {
-        const doc = await notificationRepo.notificationModel.create(data);
+        const doc = await notificationRepo.notificationModel.create(req.body);
         documentId = doc._id;
     } catch (error) {
         // no op

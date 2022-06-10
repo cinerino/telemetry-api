@@ -140,7 +140,7 @@ webhooksRouter.post('/lineNotify', (req, res) => __awaiter(void 0, void 0, void 
     const notificationRepo = new cinerino.repository.Notification(mongoose.connection);
     let documentId;
     try {
-        const doc = yield notificationRepo.notificationModel.create(data);
+        const doc = yield notificationRepo.notificationModel.create(req.body);
         documentId = doc._id;
     }
     catch (error) {
