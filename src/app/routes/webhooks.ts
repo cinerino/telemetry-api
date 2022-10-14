@@ -121,7 +121,7 @@ webhooksRouter.post(
                 if (typeof projectId === 'string') {
                     const attributes: cinerino.factory.task.IAttributes<cinerino.factory.taskName> = {
                         name: <any>'analyzeSendGridEvent',
-                        project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: projectId },
+                        project: { typeOf: cinerino.factory.organizationType.Project, id: projectId },
                         status: cinerino.factory.taskStatus.Ready,
                         runsAt: new Date(),
                         remainingNumberOfTries: 3,
@@ -129,7 +129,7 @@ webhooksRouter.post(
                         executionResults: [],
                         data: <any>{
                             event: event,
-                            project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: projectId }
+                            project: { typeOf: cinerino.factory.organizationType.Project, id: projectId }
                         }
                     };
 

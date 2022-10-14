@@ -108,7 +108,7 @@ webhooksRouter.post('/sendGrid/event/notify', (req, res) => __awaiter(void 0, vo
             if (typeof projectId === 'string') {
                 const attributes = {
                     name: 'analyzeSendGridEvent',
-                    project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: projectId },
+                    project: { typeOf: cinerino.factory.organizationType.Project, id: projectId },
                     status: cinerino.factory.taskStatus.Ready,
                     runsAt: new Date(),
                     remainingNumberOfTries: 3,
@@ -116,7 +116,7 @@ webhooksRouter.post('/sendGrid/event/notify', (req, res) => __awaiter(void 0, vo
                     executionResults: [],
                     data: {
                         event: event,
-                        project: { typeOf: cinerino.factory.chevre.organizationType.Project, id: projectId }
+                        project: { typeOf: cinerino.factory.organizationType.Project, id: projectId }
                     }
                 };
                 yield taskRepo.save(attributes);
