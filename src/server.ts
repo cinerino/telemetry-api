@@ -11,19 +11,21 @@ import runJobs from './jobs/run';
 
 const debug = createDebug('cinerino-telemetry-api:server');
 
-runJobs()
-    .then()
-    .catch((err) => {
-        // tslint:disable-next-line:no-console
-        console.error('runJobs:', err);
-        process.exit(1);
-    });
+if (process.env.JOBS_STOPPED !== '1') {
+    runJobs()
+        .then()
+        .catch((err) => {
+            // tslint:disable-next-line:no-console
+            console.error('runJobs:', err);
+            process.exit(1);
+        });
+}
 
 /**
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort((process.env.PORT === undefined) ? '8082' : process.env.PORT);
+const port = normalizePort((process.env.PORT === undefined) ? '8080' : process.env.PORT);
 app.set('port', port);
 
 /**
@@ -39,6 +41,10 @@ const server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+// Server has a 5 seconds keep-alive timeout by default
+// tslint:disable-next-line:no-magic-numbers
+server.keepAliveTimeout = (typeof process.env.NODE_KEEP_ALIVE_TIMEOUT === 'string') ? Number(process.env.NODE_KEEP_ALIVE_TIMEOUT) : 10000;
 
 /**
  * Normalize a port into a number, string, or false.

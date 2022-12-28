@@ -3,7 +3,7 @@
  */
 import * as express from 'express';
 
-import healthRouter from './health';
+import { healthRouter } from './health';
 import organizationsRouter from './organizations';
 import webhooksRouter from './webhooks';
 

@@ -15,17 +15,27 @@ exports.connectMongo = void 0;
  */
 const createDebug = require("debug");
 const mongoose = require("mongoose");
-const debug = createDebug('cinerino-telemetry-api:connectMongo');
-const PING_INTERVAL = 10000;
+const debug = createDebug('chevre-api:connectMongo');
 const MONGOLAB_URI = process.env.MONGOLAB_URI;
+const AUTO_INDEX = process.env.MONGO_AUTO_INDEX_DISABLED !== '1';
+const MONGO_PING_INTERVAL_MS = (typeof process.env.MONGO_PING_INTERVAL_MS === 'string')
+    ? Number(process.env.MONGO_PING_INTERVAL_MS)
+    // tslint:disable-next-line:no-magic-numbers
+    : 30000;
+// tslint:disable-next-line:no-magic-numbers
+const MONGO_PING_TIMEOUT_MS = (typeof process.env.MONGO_PING_TIMEOUT_MS === 'string') ? Number(process.env.MONGO_PING_TIMEOUT_MS) : 10000;
 const connectOptions = {
-    autoReconnect: true,
+    autoIndex: AUTO_INDEX,
+    // autoReconnect: true,
     keepAlive: true,
     connectTimeoutMS: 30000,
-    socketTimeoutMS: 0,
-    reconnectTries: 30,
-    reconnectInterval: 1000,
-    useNewUrlParser: true
+    socketTimeoutMS: 45000,
+    // reconnectTries: 30,
+    // reconnectInterval: 1000,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 };
 function connectMongo(params) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -41,40 +51,49 @@ function connectMongo(params) {
         // 定期的にコネクションチェック
         // tslint:disable-next-line:no-single-line-block-comment
         /* istanbul ignore next */
-        setInterval(() => __awaiter(this, void 0, void 0, function* () {
-            // すでに接続済かどうか
-            if (connection.readyState === 1) {
-                // 接続済であれば疎通確認
-                let pingResult;
-                yield new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-                    try {
-                        pingResult = yield connection.db.admin()
-                            .ping();
-                        debug('pingResult:', pingResult);
+        if (params.disableCheck === undefined || params.disableCheck === false) {
+            setInterval(() => __awaiter(this, void 0, void 0, function* () {
+                // すでに接続済かどうか
+                if (connection.readyState === 1) {
+                    // 接続済であれば疎通確認
+                    let pingResult;
+                    yield new Promise((resolve) => {
+                        try {
+                            connection.db.admin()
+                                .ping()
+                                .then((result) => {
+                                pingResult = result;
+                                debug('pingResult:', pingResult);
+                            })
+                                .catch((error) => {
+                                // tslint:disable-next-line:no-console
+                                console.error('ping error:', error);
+                            });
+                        }
+                        catch (error) {
+                            // tslint:disable-next-line:no-console
+                            console.error('connection.db.admin() error:', error);
+                        }
+                        // tslint:disable-next-line:no-magic-numbers
+                        setTimeout(() => { resolve(); }, MONGO_PING_TIMEOUT_MS);
+                    });
+                    // 疎通確認結果が適性であれば何もしない
+                    if (pingResult !== undefined && pingResult.ok === 1) {
+                        return;
                     }
-                    catch (error) {
-                        // tslint:disable-next-line:no-console
-                        console.error('ping:', error);
-                    }
-                    // tslint:disable-next-line:no-magic-numbers
-                    setTimeout(() => { resolve(); }, 5000);
-                }));
-                // 疎通確認結果が適性であれば何もしない
-                if (pingResult !== undefined && pingResult.ok === 1) {
-                    return;
                 }
-            }
-            try {
-                // コネクション再確立
-                yield connection.close();
-                yield connection.openUri(MONGOLAB_URI, connectOptions);
-                debug('MongoDB reconnected!');
-            }
-            catch (error) {
-                // tslint:disable-next-line:no-console
-                console.error('mongoose.connect:', error);
-            }
-        }), PING_INTERVAL);
+                try {
+                    // コネクション再確立
+                    yield connection.close();
+                    yield connection.openUri(MONGOLAB_URI, connectOptions);
+                    debug('MongoDB reconnected!');
+                }
+                catch (error) {
+                    // tslint:disable-next-line:no-console
+                    console.error('mongoose.connect:', error);
+                }
+            }), MONGO_PING_INTERVAL_MS);
+        }
         return connection;
     });
 }

@@ -16,7 +16,7 @@ const router = express.Router();
 router.get('', (__, res) => {
     res.send('hello!');
 });
-router.use('/health', health_1.default);
+router.use('/health', health_1.healthRouter);
 router.use('/organizations', organizations_1.default);
 router.use('/webhooks', webhooks_1.default);
 exports.default = router;
