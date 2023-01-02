@@ -8,15 +8,7 @@ const createDebug = require("debug");
 const fs = require("fs");
 const https = require("https");
 const app = require("./app/app");
-const run_1 = require("./jobs/run");
 const debug = createDebug('cinerino-telemetry-api:server');
-(0, run_1.default)()
-    .then()
-    .catch((err) => {
-    // tslint:disable-next-line:no-console
-    console.error('runJobs:', err);
-    process.exit(1);
-});
 /**
  * Get port from environment and store in Express.
  */
