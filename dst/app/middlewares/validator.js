@@ -9,26 +9,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.validator = void 0;
 /**
  * バリデーターミドルウェア
  * リクエストのパラメータ(query strings or body parameters)に対するバリデーション
  */
 const cinerino = require("@cinerino/telemetry-domain");
-const createDebug = require("debug");
+const express_validator_1 = require("express-validator");
 const http_status_1 = require("http-status");
 const api_1 = require("../error/api");
-const debug = createDebug('cinerino-telemetry-api:middlewares');
-exports.default = (req, __, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const validatorResult = yield req.getValidationResult();
-    if (!validatorResult.isEmpty()) {
-        const errors = validatorResult.array()
-            .map((mappedRrror) => {
-            return new cinerino.factory.errors.Argument(mappedRrror.param, mappedRrror.msg);
-        });
-        debug('validation result not empty...', errors);
-        next(new api_1.APIError(http_status_1.BAD_REQUEST, errors));
-    }
-    else {
-        next();
-    }
-});
+function validator(req, __, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validatorResult = (0, express_validator_1.validationResult)(req);
+        if (!validatorResult.isEmpty()) {
+            const errors = validatorResult.array()
+                .map((mappedRrror) => {
+                return new cinerino.factory.errors.Argument(mappedRrror.param, mappedRrror.msg);
+            });
+            next(new api_1.APIError(http_status_1.BAD_REQUEST, errors));
+        }
+        else {
+            next();
+        }
+    });
+}
+exports.validator = validator;

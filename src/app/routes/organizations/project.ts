@@ -10,18 +10,15 @@ import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as util from 'util';
 
-import authentication from '../../middlewares/authentication';
-import validator from '../../middlewares/validator';
+import { validator } from '../../middlewares/validator';
 
 const projectRouter = Router();
-projectRouter.use(authentication);
 
 /**
  * タスク追加
  */
 projectRouter.post(
     '/:projectId/tasks/:name',
-    // permitScopes(['admin']),
     ...[
         body('data')
             .not()
@@ -56,7 +53,6 @@ projectRouter.post(
  */
 projectRouter.get(
     '/:projectId/telemetry/:telemetryType',
-    // permitScopes(['admin']),
     validator,
     async (req, res, next) => {
         try {

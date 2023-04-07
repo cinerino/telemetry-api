@@ -21,11 +21,9 @@ const http_status_1 = require("http-status");
 // import * as moment from 'moment';
 const mongoose = require("mongoose");
 const util = require("util");
-const authentication_1 = require("../middlewares/authentication");
 const validator_1 = require("../middlewares/validator");
 const USE_SAVE_TRANSACTIONS = process.env.USE_SAVE_TRANSACTIONS === '1';
 const webhooksRouter = (0, express_1.Router)();
-webhooksRouter.use(authentication_1.default);
 /**
  * 取引ウェブフック受信
  */
@@ -34,7 +32,7 @@ webhooksRouter.post('/onPlaceOrderEnded', ...[
         .not()
         .isEmpty()
         .withMessage(() => 'required')
-], validator_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+], validator_1.validator, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // const transaction = <cinerino.factory.transaction.ITransaction<cinerino.factory.transactionType> | undefined>
         //     EJSON.fromJSONValue(JSON.stringify(req.body.data));

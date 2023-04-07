@@ -20,21 +20,17 @@ const http_status_1 = require("http-status");
 const moment = require("moment");
 const mongoose = require("mongoose");
 const util = require("util");
-const authentication_1 = require("../../middlewares/authentication");
 const validator_1 = require("../../middlewares/validator");
 const projectRouter = (0, express_1.Router)();
-projectRouter.use(authentication_1.default);
 /**
  * タスク追加
  */
-projectRouter.post('/:projectId/tasks/:name', 
-// permitScopes(['admin']),
-...[
+projectRouter.post('/:projectId/tasks/:name', ...[
     (0, check_1.body)('data')
         .not()
         .isEmpty()
         .withMessage(() => 'required')
-], validator_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+], validator_1.validator, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const taskRepo = new cinerino.repository.Task(mongoose.connection);
         const attributes = {
@@ -58,9 +54,7 @@ projectRouter.post('/:projectId/tasks/:name',
 /**
  * テレメトリー検索
  */
-projectRouter.get('/:projectId/telemetry/:telemetryType', 
-// permitScopes(['admin']),
-validator_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+projectRouter.get('/:projectId/telemetry/:telemetryType', validator_1.validator, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const telemetryRepo = new cinerino.repository.Telemetry(mongoose.connection);
         const datas = yield cinerino.service.telemetry.search({

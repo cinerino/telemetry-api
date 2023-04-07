@@ -90,7 +90,7 @@ function onListening() {
     const addr = server.address();
     const bind = typeof addr === 'string'
         ? `pipe ${addr}`
-        : `port ${addr.port.toString()}`;
+        : `port ${addr?.port.toString()}`;
     debug(`Listening on ${bind}`);
 
     const diff = process.hrtime(startTime);

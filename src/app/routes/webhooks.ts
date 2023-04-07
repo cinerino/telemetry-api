@@ -11,13 +11,11 @@ import { BAD_REQUEST, INTERNAL_SERVER_ERROR, NO_CONTENT, OK } from 'http-status'
 import * as mongoose from 'mongoose';
 import * as util from 'util';
 
-import authentication from '../middlewares/authentication';
-import validator from '../middlewares/validator';
+import { validator } from '../middlewares/validator';
 
 const USE_SAVE_TRANSACTIONS = process.env.USE_SAVE_TRANSACTIONS === '1';
 
 const webhooksRouter = Router();
-webhooksRouter.use(authentication);
 
 /**
  * 取引ウェブフック受信

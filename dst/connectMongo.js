@@ -15,27 +15,34 @@ exports.connectMongo = void 0;
  */
 const createDebug = require("debug");
 const mongoose = require("mongoose");
-const debug = createDebug('chevre-api:connectMongo');
+const debug = createDebug('cinerino-telemetry-api:connectMongo');
 const MONGOLAB_URI = process.env.MONGOLAB_URI;
 const AUTO_INDEX = process.env.MONGO_AUTO_INDEX_DISABLED !== '1';
 const MONGO_PING_INTERVAL_MS = (typeof process.env.MONGO_PING_INTERVAL_MS === 'string')
+    // tslint:disable-next-line:no-single-line-block-comment
+    /* istanbul ignore next */
     ? Number(process.env.MONGO_PING_INTERVAL_MS)
     // tslint:disable-next-line:no-magic-numbers
     : 30000;
 // tslint:disable-next-line:no-magic-numbers
-const MONGO_PING_TIMEOUT_MS = (typeof process.env.MONGO_PING_TIMEOUT_MS === 'string') ? Number(process.env.MONGO_PING_TIMEOUT_MS) : 10000;
+const MONGO_PING_TIMEOUT_MS = (typeof process.env.MONGO_PING_TIMEOUT_MS === 'string')
+    // tslint:disable-next-line:no-single-line-block-comment
+    /* istanbul ignore next */
+    ? Number(process.env.MONGO_PING_TIMEOUT_MS)
+    // tslint:disable-next-line:no-magic-numbers
+    : 10000;
 const connectOptions = {
     autoIndex: AUTO_INDEX,
     // autoReconnect: true,
     keepAlive: true,
     connectTimeoutMS: 30000,
-    socketTimeoutMS: 45000,
+    socketTimeoutMS: 45000
     // reconnectTries: 30,
     // reconnectInterval: 1000,
-    useCreateIndex: true,
-    useFindAndModify: false,
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+    // useCreateIndex: true,
+    // useFindAndModify: false,
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true
 };
 function connectMongo(params) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -47,6 +54,7 @@ function connectMongo(params) {
         }
         else {
             connection = mongoose.createConnection(MONGOLAB_URI, connectOptions);
+            // .asPromise();
         }
         // 定期的にコネクションチェック
         // tslint:disable-next-line:no-single-line-block-comment
